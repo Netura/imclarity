@@ -30,6 +30,11 @@ function imclarity_handle_bulk_actions( $redirect_to, $doaction, $post_ids ) {
 		return $redirect_to;
 	}
 	
+	// Verify nonce for bulk actions to prevent CSRF
+	if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( $_REQUEST['_wpnonce'], 'bulk-media' ) ) {
+		wp_die( __( 'Security check failed', 'imclarity' ) );
+	}
+	
 	$permissions = apply_filters( 'imclarity_admin_permissions', 'manage_options' );
 	if ( ! current_user_can( $permissions ) ) {
 		return $redirect_to;

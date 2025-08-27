@@ -50,7 +50,14 @@ class Imclarity_CLI extends WP_CLI_Command {
 		WP_CLI::line( sprintf( __( 'Resizing images to %1$d x %2$d', 'imclarity' ), $maxw, $maxh ) );
 
 		global $wpdb;
-		$attachments = $wpdb->get_col( "SELECT ID FROM $wpdb->posts WHERE (post_type = 'attachment' OR post_type = 'ims_image') AND post_mime_type LIKE '%%image%%' ORDER BY ID DESC" );
+		$attachments = $wpdb->get_col( 
+			$wpdb->prepare( 
+				"SELECT ID FROM {$wpdb->posts} WHERE (post_type = %s OR post_type = %s) AND post_mime_type LIKE %s ORDER BY ID DESC",
+				'attachment',
+				'ims_image',
+				'%image%'
+			)
+		);
 
 		$image_count = count( $attachments );
 		if ( ! $image_count ) {

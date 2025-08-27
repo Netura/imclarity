@@ -99,44 +99,62 @@ function imclarity_get_source() {
 	imclarity_debug( __FUNCTION__ );
 	$id     = array_key_exists( 'post_id', $_REQUEST ) ? (int) $_REQUEST['post_id'] : ''; // phpcs:ignore WordPress.Security.NonceVerification
 	$action = ! empty( $_REQUEST['action'] ) ? sanitize_key( $_REQUEST['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
-	imclarity_debug( "getting source for id=$id and action=$action" );
+	
+	// Only debug in development environments to prevent information disclosure
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG && current_user_can( 'manage_options' ) ) {
+		imclarity_debug( "getting source for id=$id and action=$action" );
+	}
 
 	// Uncomment this (and remove the trailing .) to temporarily check the full $_SERVER vars.
 	// imsanity_debug( $_SERVER );.
 	$referer = '';
 	if ( ! empty( $_SERVER['HTTP_REFERER'] ) ) {
 		$referer = sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
-		imclarity_debug( "http_referer: $referer" );
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && current_user_can( 'manage_options' ) ) {
+			imclarity_debug( "http_referer: $referer" );
+		}
 	}
 
 	$request_uri = wp_referer_field( false );
-	imclarity_debug( "request URI: $request_uri" );
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG && current_user_can( 'manage_options' ) ) {
+		imclarity_debug( "request URI: $request_uri" );
+	}
 
 	// A post_id indicates image is attached to a post.
 	if ( $id > 0 ) {
-		imclarity_debug( 'from a post (id)' );
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && current_user_can( 'manage_options' ) ) {
+			imclarity_debug( 'from a post (id)' );
+		}
 		return IMCLARITY_SOURCE_POST;
 	}
 
 	// If the referrer is the post editor, that's a good indication the image is attached to a post.
 	if ( false !== strpos( $referer, '/post.php' ) ) {
-		imclarity_debug( 'from a post.php' );
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && current_user_can( 'manage_options' ) ) {
+			imclarity_debug( 'from a post.php' );
+		}
 		return IMCLARITY_SOURCE_POST;
 	}
 	// If the referrer is the (new) post editor, that's a good indication the image is attached to a post.
 	if ( false !== strpos( $referer, '/post-new.php' ) ) {
-		imclarity_debug( 'from a new post' );
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && current_user_can( 'manage_options' ) ) {
+			imclarity_debug( 'from a new post' );
+		}
 		return IMCLARITY_SOURCE_POST;
 	}
 
 	// Post_id of 0 is 3.x otherwise use the action parameter.
 	if ( 0 === $id || 'upload-attachment' === $action ) {
-		imclarity_debug( 'from the library' );
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && current_user_can( 'manage_options' ) ) {
+			imclarity_debug( 'from the library' );
+		}
 		return IMCLARITY_SOURCE_LIBRARY;
 	}
 
 	// We don't know where this one came from but $_REQUEST['_wp_http_referer'] may contain info.
-	imclarity_debug( 'unknown source' );
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG && current_user_can( 'manage_options' ) ) {
+		imclarity_debug( 'unknown source' );
+	}
 	return IMCLARITY_SOURCE_OTHER;
 }
 

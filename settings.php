@@ -100,7 +100,7 @@ function imclarity_queue_script( $hook ) {
 		$bulk_ids = get_transient( 'imclarity_bulk_process_ids' );
 		if ( $bulk_ids ) {
 			// Store as resume IDs for processing and clean up transient
-			update_option( 'imclarity_bulk_selected_ids', $bulk_ids, false );
+			set_transient( 'imclarity_bulk_selected_ids', $bulk_ids, 300 ); // 5 minutes expiry
 			delete_transient( 'imclarity_bulk_process_ids' );
 		}
 	}
@@ -140,7 +140,8 @@ function imclarity_queue_script( $hook ) {
  */
 function imclarity_multisite_table_exists() {
 	global $wpdb;
-	return $wpdb->get_var( "SHOW TABLES LIKE '$wpdb->imclarity_ms'" ) === $wpdb->imclarity_ms;
+	$table_name = $wpdb->prefix . 'imclarity_ms';
+	return $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table_name ) ) === $table_name;
 }
 
 /**
@@ -155,7 +156,8 @@ function imclarity_multisite_table_schema_version() {
 	}
 
 	global $wpdb;
-	$version = $wpdb->get_var( "SELECT data FROM $wpdb->imclarity_ms WHERE setting = 'schema'" );
+	$table_name = $wpdb->prefix . 'imclarity_ms';
+	$version = $wpdb->get_var( $wpdb->prepare( "SELECT data FROM %i WHERE setting = %s", $table_name, 'schema' ) );
 
 	if ( ! $version ) {
 		$version = '1.0'; // This is a legacy version 1.0 installation.
@@ -244,7 +246,8 @@ function imclarity_maybe_created_custom_table() {
 					'data'    => IMCLARITY_SCHEMA_VERSION,
 				)
 			);
-			$wpdb->query( "ALTER TABLE $wpdb->imclarity_ms CHANGE COLUMN data data TEXT NOT NULL;" );
+			$table_name = $wpdb->prefix . 'imclarity_ms';
+			$wpdb->query( $wpdb->prepare( "ALTER TABLE %i CHANGE COLUMN data data TEXT NOT NULL", $table_name ) );
 		} else {
 			// @todo we don't have this yet
 			$wpdb->update(
@@ -422,13 +425,23 @@ function imclarity_get_multisite_settings() {
 	if ( ! $_imclarity_multisite_settings ) {
 		if ( function_exists( 'is_multisite' ) && is_multisite() ) {
 			global $wpdb;
-			$result = $wpdb->get_var( "SELECT data FROM $wpdb->imclarity_ms WHERE setting = 'multisite'" );
+			$table_name = $wpdb->prefix . 'imclarity_ms';
+			$result = $wpdb->get_var( $wpdb->prepare( "SELECT data FROM %i WHERE setting = %s", $table_name, 'multisite' ) );
 		}
 
 		// if there's no results, return the defaults instead.
-		$_imclarity_multisite_settings = $result
-			? unserialize( $result )
-			: imclarity_get_default_multisite_settings();
+		if ( $result ) {
+			// Validate serialized data before unserializing for security
+			$unserialized = @unserialize( $result );
+			if ( $unserialized === false && $result !== serialize( false ) ) {
+				// Invalid serialized data, use defaults
+				$_imclarity_multisite_settings = imclarity_get_default_multisite_settings();
+			} else {
+				$_imclarity_multisite_settings = $unserialized;
+			}
+		} else {
+			$_imclarity_multisite_settings = imclarity_get_default_multisite_settings();
+		}
 
 		// this is for backwards compatibility.
 		if ( ! isset( $_imclarity_multisite_settings->imclarity_max_height_library ) ) {
@@ -506,7 +519,7 @@ function imclarity_set_defaults() {
 	add_option( 'imclarity_delete_originals', $settings->imclarity_delete_originals, '', false );
 	if ( ! get_option( 'imclarity_version' ) ) {
 		global $wpdb;
-		$wpdb->query( "UPDATE $wpdb->options SET autoload='no' WHERE option_name LIKE 'imclarity_%'" );
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->options} SET autoload='no' WHERE option_name LIKE %s", 'imclarity_%' ) );
 	}
 }
 

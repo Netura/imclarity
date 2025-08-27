@@ -35,10 +35,11 @@ function imclarity_get_images() {
 	}
 
 	// Check if we're processing selected images from bulk action
-	$bulk_selected = get_option( 'imclarity_bulk_selected_ids', false );
+	// Use transient to prevent race conditions
+	$bulk_selected = get_transient( 'imclarity_bulk_selected_ids' );
 	if ( $bulk_selected && is_array( $bulk_selected ) ) {
-		// Remove from option and send the selected IDs
-		delete_option( 'imclarity_bulk_selected_ids' );
+		// Remove from transient atomically and send the selected IDs
+		delete_transient( 'imclarity_bulk_selected_ids' );
 		array_walk( $bulk_selected, 'intval' );
 		wp_send_json( $bulk_selected );
 	}
@@ -46,7 +47,7 @@ function imclarity_get_images() {
 	$resume_id = ! empty( $_POST['resume_id'] ) ? (int) $_POST['resume_id'] : PHP_INT_MAX;
 	global $wpdb;
 	// Load up all the image attachments we can find.
-	$attachments = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE ID < %d AND post_type = 'attachment' AND post_mime_type LIKE %s ORDER BY ID DESC", $resume_id, '%%image%%' ) );
+	$attachments = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE ID < %d AND post_type = %s AND post_mime_type LIKE %s ORDER BY ID DESC", $resume_id, 'attachment', '%image%' ) );
 	array_walk( $attachments, 'intval' );
 	wp_send_json( $attachments );
 }

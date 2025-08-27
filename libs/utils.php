@@ -194,9 +194,29 @@ function imclarity_has_alpha( $filename ) {
 	if ( ! is_file( $filename ) ) {
 		return false;
 	}
-	if ( false !== strpos( $filename, '../' ) ) {
+	
+	// Enhanced path traversal protection
+	$filename = realpath( $filename );
+	if ( ! $filename ) {
 		return false;
 	}
+	
+	// Ensure the file is within WordPress upload directory
+	$upload_dir = wp_upload_dir();
+	$allowed_path = realpath( $upload_dir['basedir'] );
+	if ( ! $allowed_path || strpos( $filename, $allowed_path ) !== 0 ) {
+		return false;
+	}
+	
+	// Additional security checks for path traversal attempts
+	$filename_normalized = wp_normalize_path( $filename );
+	if ( strpos( $filename_normalized, '../' ) !== false || 
+		 strpos( $filename_normalized, '..' . DIRECTORY_SEPARATOR ) !== false ||
+		 strpos( $filename_normalized, '~' ) !== false ||
+		 preg_match( '/\x00/', $filename_normalized ) ) {
+		return false;
+	}
+	
 	$file_contents = file_get_contents( $filename );
 	// Determine what color type is stored in the file.
 	$color_type = ord( substr( $file_contents, 25, 1 ) );
