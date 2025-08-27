@@ -1,6 +1,5 @@
 === Imclarity ===
 Contributors: netura
-Donate link: https://netura.fi/donate/
 Tags: image, scale, resize, space saver, quality
 Tested up to: 6.8
 Stable tag: 3.0.0
