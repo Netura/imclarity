@@ -14,7 +14,7 @@ Plugin URI: https://wordpress.org/plugins/imclarity/
 Description: Imclarity stops insanely huge image uploads
 Author: Netura
 Domain Path: /languages
-Version: 2.8.7
+Version: 3.0.0
 Requires at least: 6.5
 Requires PHP: 7.4
 Author URI: https://netura.fi
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'IMCLARITY_VERSION', '2.8.7' );
+define( 'IMCLARITY_VERSION', '3.0.0' );
 define( 'IMCLARITY_SCHEMA_VERSION', '1.1' );
 
 define( 'IMCLARITY_DEFAULT_MAX_WIDTH', 1920 );

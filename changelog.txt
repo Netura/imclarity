@@ -1,3 +1,15 @@
+= 3.0.0 =
+*Release Date - January 27, 2025*
+
+* changed: Complete plugin rebranding from Imsanity to Imclarity
+* changed: Updated all function names, constants, and text domains from imsanity_* to imclarity_*
+* changed: Updated author information to Netura (https://netura.fi)
+* changed: Updated plugin URLs and repository references
+* changed: Renamed main plugin file from imsanity.php to imclarity.php
+* changed: Renamed CLI class file and JavaScript assets
+* changed: Updated language files and text domain
+* changed: Updated WP-CLI command from 'wp imsanity' to 'wp imclarity'
+
 = 2.8.7 =
 *Release Date = August 6, 2024*
 

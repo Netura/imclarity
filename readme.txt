@@ -3,7 +3,7 @@ Contributors: netura
 Donate link: https://netura.fi/donate/
 Tags: image, scale, resize, space saver, quality
 Tested up to: 6.8
-Stable tag: 2.8.7
+Stable tag: 3.0.0
 License: GPLv3
 
 Automatically resizes huge image uploads. Are contributors uploading huge photos? Tired of manually resizing your images? Imclarity to the rescue!
