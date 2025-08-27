@@ -182,4 +182,6 @@ Please refer to the separate changelog.txt file.
 
 == Credits ==
 
-Originally written by Jason Hinkle (RIP). Now maintained and developed by [Netura](https://netura.fi).
+Originally written by Jason Hinkle (RIP)
+Maintained by Jason Bishop.
+Modified and developed by Netura (https://netura.fi).
